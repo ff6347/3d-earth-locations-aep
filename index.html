@@ -1,0 +1,166 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>3d-earth-locations-aep by fabiantheblind</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>3d-earth-locations-aep</h1>
+        <p>This is the repo to my After Effects 3D Locations Tutorial</p>
+
+        <p class="view"><a href="https://github.com/fabiantheblind/3d-earth-locations-aep">View the Project on GitHub <small>fabiantheblind/3d-earth-locations-aep</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/fabiantheblind/3d-earth-locations-aep/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/fabiantheblind/3d-earth-locations-aep/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/fabiantheblind/3d-earth-locations-aep">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h1>After Effects 3D Locations Tutorial</h1>
+
+<p>This tutorial will show you how to use VC Element and Locations.jsx to create a Globe in 3D space with a geo marker and text overlay.  </p>
+
+<p>0 . Prerequisites</p>
+
+<ul>
+<li>
+<a href="http://www.adobe.com/products/aftereffects.html">AE CS 4+</a><br>
+</li>
+<li>
+<a href="https://www.videocopilot.net/products/element/">Videocopilot Element</a><br>
+</li>
+<li>
+<a href="http://www.sublimetext.com">Sublime Text 2</a><br>
+</li>
+<li>
+<a href="http://aescripts.com/locations/">Locations Script</a><br>
+</li>
+<li>
+<a href="http://aescripts.com/aemap/">AEMap Script</a><br>
+</li>
+<li>
+<a href="http://aescripts.com/zorro-the-layer-tagger/">Zorro Script</a><br>
+</li>
+<li>(optional) <a href="https://www.videocopilot.net/products/opticalflares/">Optical Flares</a> / <a href="http://www.redgiantsoftware.com/products/all/knoll-light-factory/">Knoll Light Factory</a> / or other 3D flare generator<br>
+</li>
+</ul><p>1 . Get the Data  </p>
+
+<ul>
+<li>
+<a href="http://www.shadedrelief.com/natural3/pages/textures.html">Natural Earth</a> by Tom Patterson<br>
+</li>
+<li>NASA VIIRS <a href="http://earthobservatory.nasa.gov/NaturalHazards/view.php?id=79765">Earth At Night</a><br>
+</li>
+<li>
+<a href="http://www.videocopilot.net/blog/2012/08/free-earth-project-for-element-3d/">VideoCopilot 3D Earth</a><br>
+</li>
+<li>
+<a href="http://www.celestiamotherlode.net/catalog/show_creator_details.php?creator_id=205">Moon</a> by Philip Iveic<br>
+</li>
+<li>
+<a href="http://www.celestiamotherlode.net/catalog/sol.php">Sun</a> by Frank Gregorio<br>
+</li>
+<li>
+<a href="http://geocommons.com/overlays/165342">US State Capitals Geocommos</a><br>
+</li>
+</ul><h2>For The Nerds</h2>
+
+<ol>
+<li>Create bigger normal Map<br>
+</li>
+<li>Get Geo Data from geoTiff<br>
+</li>
+</ol><hr><h3>Normal Maps</h3>
+
+<p>Use <a href="https://github.com/sinisterchipmunk/normal-map">normal-map</a> by sinisterchipmunk  </p>
+
+<blockquote>
+<p>Command line tool and Ruby library for generating normal maps.<br>
+Generates DOT3 bump maps, also known as normal maps, for use in 3D computing.<br>
+by sinisterchipmunk
+Works fine! Cool thing.<br><a href="https://github.com/sinisterchipmunk/normal-map">github Link</a><br>
+MAC Requirements<br>
+needs XCode and Command Line Tools installed, <a href="http://rmagick.rubyforge.org">rmagick</a> which needs <a href="http://www.imagemagick.org/script/index.php">ImageMagick</a>:</p>
+</blockquote>
+
+<pre><code>sudo port install ImageMagick  
+</code></pre>
+
+<p>than  </p>
+
+<pre><code>sudo gem install rmagick  
+</code></pre>
+
+<p>if the installation of ImageMagick fails it helped for me to fully uninstall zlib and jpeg using:    </p>
+
+<pre><code># clean out zlib  
+port clean --all zlib  
+sudo port clean --all zlib  
+sudo port install zlib  
+
+# clean out jpeg
+port clean --all jpeg  
+sudo port clean --all jpeg  
+sudo port install jpeg  
+</code></pre>
+
+<h3>Geo Data from geoTiff</h3>
+
+<p>use this python script readgeoinfo.py  </p>
+
+<pre><code>!/usr/bin/env python    
+from sys import argv    
+from osgeo import gdal    
+filetoread = argv    
+# print type(filetoread)    
+ds = gdal.Open(filetoread[1])    
+width = ds.RasterXSize    
+height = ds.RasterYSize    
+gt = ds.GetGeoTransform()    
+minx = gt[0]    
+miny = gt[3] + width * gt[4] + height * gt[5]    
+maxx = gt[0] + width * gt[1] + height * gt[2]    
+maxy = gt[3]
+
+if not gt is None:
+    print 'Origin = (', gt[0] , ',', gt[3] ,')'
+    print 'Pixel Size = (', gt[1] , ',', gt[5] , ')'
+    print ''
+    print 'min X = ',minx
+    print 'min Y = ', miny
+    print ''
+    print 'max X = ' , maxx
+    print 'max Y = ' , maxy
+</code></pre>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/fabiantheblind">fabiantheblind</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+              <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-37487251-1");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
+  </body>
+</html>
